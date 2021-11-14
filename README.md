@@ -4,7 +4,7 @@
 
 - node js v14^
 
-### Запуск develoment версии
+### Запуск development версии
 
 ```
 npm run serve
