@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="keywords" content="lineage 2 server, линейдж 2 сервер, топ сервер, top server, mmorpg, вывод адены, pc game, мморпг, interlude, low rate" />
+    <meta name="description" content="На нашем сервере вся экономика привязана к реальным деньгам, а с помощью «контракта вывода адены» вы можете обналичить игровую валюту и вывести рубли себе на карту или другую платежную систему." />
+    <title>L2 игровой сервер с выводом адены</title>
+    <!-- Bootstrap -->
+    <link href="https://fonts.googleapis.com/css?family=Cinzel|Cinzel+Decorative" rel="stylesheet">
+    <link href="css/styles.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
+    <!--[if lt IE 9]>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+        <![endif]-->
+    <meta name="msapplication-TileColor" content="#181818">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#181818">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+    <meta name="google-site-verification" content="fhMoalQcrF4-o5qUbdZHNuCogkdm-d9D8izwPEjPMkM" />
+    
+    <!-- Yandex.Metrika counter -->
+    <script type="text/javascript">
+        (function (m, e, t, r, i, k, a) {
+            m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments) };
+            m[i].l = 1 * new Date(); k = e.createElement(t), a = e.getElementsByTagName(t)[0], k.async = 1, k.src = r, a.parentNode.insertBefore(k, a)
+        })
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        ym(81154345, "init", {
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
+        });
+    </script>
+    <noscript>
+        <div><img src="https://mc.yandex.ru/watch/81154345" style="position:absolute; left:-9999px;" alt="" /></div>
+    </noscript>
+    <!-- /Yandex.Metrika counter -->
+
+    <!-- Global site tag (gtag.js) - Google Ads: 928386230 -->
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-199975007-1">
+    </script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'UA-199975007-1');
+    </script>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue-multiselect@2.1.0"></script>
+    <script type="text/javascript" src="https://vk.com/js/api/openapi.js?169"></script>
+</head>
+
+<body data-spy="scroll" data-target=".navbar-custom">
+
+    <div id="app">
+
+        <transition name="fade">
+            <div class="cookies-policy" v-if="!cookies.visible" :class="{ active: !cookies.visible }">
+                <div class="title">Мы используем файлы cookie</div>
+                <div class="text">Это позволяет улучшить взаимодействие пользователей с сайтом и делать его лучше. Продолжая пользоваться сайтом, вы соглашаетесь с использованием файлов cookie.</div>
+                <div class="button" @click="acceptCookies()">
+                    <span>Хорошо</span>
+                </div>
+            </div>
+        </transition>
+
+        <transition name="fade">
+            <div class="getBonus" v-show="present.show" :class="{ active: present.fird == 'true' }">
+                {{ present.text }}
+            </div>
+        </transition>
+
+        <transition name="fade">
+            <div class="modal-container" v-show="fadeOn" v-bind:class="{ active: fadeOn }">
+                <div class="modal-close" v-on:click="modalHide()"></div>
+                <div class="enter-container" v-show="modals.auth.active">
+                    <div class="enter-container-rightblock">
+                        <div class="enter-container-title">
+                            <div class="title-register" v-show="!modals.auth.update"
+                                v-on:click=" modals.auth.tab = 'registerblock'"
+                                v-bind:class="{ active: modals.auth.tab === 'registerblock' }">Регистрация</div>
+                        </div>
+                        <div class="registerblock" v-bind:class="{ active: modals.auth.tab === 'registerblock' }">
+                            <div class="step" v-show="registration.steps.count === 1">
+                                <form autocomplete="off" id="form" method="post" action="">
+                                    <div class="input verification">
+                                        <div class="inputblock">
+                                            <vue-multiselect class="country-code"
+                                                v-model="registration.countryCode.value"
+                                                :options="registration.countryCode.options" :close-on-select="true"
+                                                placeholder="Код страны" label="country" track-by="_id" select-label=""
+                                                deselect-label=""></vue-multiselect>
+                                            <div class="phoneblock">
+                                                <div class="phone-mask">{{ registration.countryCode.value.code }}</div>
+                                                <input class="number border-fix" type="number"
+                                                    placeholder="Номер телефона" v-model="registration.phone"
+                                                    readonly="readonly" onfocus="this.removeAttribute('readonly')" />
+                                            </div>
+                                        </div>
+                                        <div class="error-text" :class="{ bad: registration.bad.phone }">{{
+                                            registration.error.phone }}
+                                        </div>
+                                    </div>
+                                    <div class="input">
+                                        <input class="reginput" type="text" v-model="registration.name"
+                                            autocomplete="off" placeholder="Никнейм" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" value="default@wardgame.com" />
+                                        <div class="error-text" :class="{ bad: registration.bad.nickname }">{{
+                                            registration.error.nickname }}</div>
+                                    </div>
+                                    <div class="input">
+                                        <input class="reginput" type="password" placeholder="Придумайте пароль"
+                                            v-model="registration.pass" autocomplete="off" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.password }">{{
+                                            registration.error.password }}</div>
+                                    </div>
+                                    <div class="input">
+                                        <input class="reginput" type="password" placeholder="Повторите пароль"
+                                            v-model="registration.pass2" @keyup.enter="registrationGo()"
+                                            autocomplete="off" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.password2 }">{{
+                                            registration.error.password2 }}</div>
+                                    </div>
+                                    <div class="input">
+                                        <div class="g-recaptcha"
+                                            data-sitekey="6LeAzT8bAAAAAOLXjQq0Suf5WMTyF9y1ZJP4zP7n"></div>
+                                        <div class="error-text" :class="{ bad: registration.bad.captcha }">{{
+                                            registration.error.captcha }}</div>
+                                    </div>
+                                    <div class="input submit">
+                                        <div class="accept">
+                                            <div v-if="registration.wait" class="wait-block">
+                                                <div class="img">
+                                                    <img src="img/new/wait.svg">
+                                                </div>
+                                            </div>
+                                            <button type="submit" @click="registrationGo($event)">Далее</button>
+                                        </div>
+                                    </div>
+                                    <div class="input policy-text">
+                                        Продолжая, вы соглашаетесь с <a href="/policy.html" target="blank">политикой обработки персональных данных</a>.
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="step" v-show="registration.steps.count === 2">
+                                <div class="userinfo-imageblock">
+                                    <div class="input-text">
+                                        Вам поступит звонок с уникального номера. Введите последние 4 цифры этого
+                                        номера.
+                                    </div>
+                                    <div class="input phoneCode">
+                                        <input class="reginput" type="number"
+                                            placeholder="Последние 4 цифры входящего номера"
+                                            v-model="registration.codeFromPhone" autocomplete="off"
+                                            readonly="readonly" onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.smsResponse }">{{
+                                            registration.error.smsResponse }}</div>
+                                    </div>
+                                </div>
+                                <div class="userinfo-nextbutton">
+                                    <div class="accept">
+                                        <div v-if="registration.wait" class="wait-block">
+                                            <div class="img">
+                                                <img src="img/new/wait.svg">
+                                            </div>
+                                        </div>
+                                        <button type="button" @click="registrationGo($event)">{{ registration.button
+                                            }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step" v-show="registration.steps.count === 3">
+                                <div class="finish-block">
+                                    <div class="finish-title">Вы успешно зарегистрированы!</div>
+                                    <div class="finish-login">Ваш логин: <span>{{ registration.goodLogin }}</span></div>
+                                    <a @click="downloadLauncher()">
+                                        <div class="finish-download button-game">
+                                            <span class="button-game-bg-left"></span>
+                                            <span class="button-game-bg-mid">
+                                                <span>Скачать лаунчер</span>
+                                            </span>
+                                            <span class="button-game-bg-right"></span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- ============== HEADER =============== -->
+                <header id="home">
+                    <div class="videoblock">
+                        <video muted autoplay loop>
+                            <source src="img/new/bg-header.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+                        </video>
+                    </div>
+                    <!-- Main nav -->
+                    <nav class="navbar navbar-inverse navbar-custom navbar-fixed-top">
+                        <div class="container">
+                            <div class="navbar navbar-header">
+                                <!-- <a class="navbar-brand navbar-logo" href="#home"></a> -->
+                                <!-- SEARCH
+                                        <div class="btn-group">
+                                            <button type="button" class="search-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <span class="ion-search"></span>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-search-box animated fadeIn">
+                                                <span class="ion-android-arrow-dropup searchbox-caret animated fadeIn"></span>
+                                                <form method="get" action="#">
+                                                    <input type="text" placeholder="Search..." class="search-box" required>
+                                                </form>
+                                            </div>
+                                        </div>-->
+                                <button type="button" class="navbar-toggle custom-toggle-btn" data-toggle="collapse"
+                                    data-target="#main-nav" aria-expanded="false">
+                                    <span class="sr-only">
+                                        Toggle navigation
+                                    </span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+                                <a href="https://t.me/rpgeconomy" target="blank" class="telegram-block-trigger">
+                                    <div class="telegram-block">
+                                        <div class="img">
+                                            <img src="img/new/telegram2.gif">
+                                        </div>
+                                        <div class="text">Подпишись на телеграмм<br>получи ранний доступ к игре</div>
+                                    </div>
+                                </a>
+                                <a href="#gallery" class="link-timer-header">
+                                    <div class="timer-header">
+                                        <div class="timer-header-title">Start</div>
+                                        <ul class="countdown header">
+                                            <li> <span class="days">00</span>
+                                                <p class="days_ref">дней</p>
+                                            </li>
+                                            <li class="seperator fixDays header"></li>
+                                            <li> <span class="hours">00</span>
+                                                <p class="hours_ref">часов</p>
+                                            </li>
+                                            <li class="seperator header">:</li>
+                                            <li> <span class="minutes">00</span>
+                                                <p class="minutes_ref">минут</p>
+                                            </li>
+                                            <li class="seperator header">:</li>
+                                            <li> <span class="seconds">00</span>
+                                                <p class="seconds_ref">секунд</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="collapse navbar-collapse" id="main-nav">
+                                <ul class="nav navbar-nav navbar-right">
+                                    <li class="plain-link"><a href="#features">О сервере</a></li>
+                                    <li class="plain-link"><a href="#gallery">Дата открытия</a></li>
+                                    <li class="plain-link"><a href="#store">Бонус</a></li>
+                                    <li class="plain-link"><a href="#contact">Регистрация</a></li>
+                                    <li class="plain-link download-launcher">
+                                        <a @click="downloadLauncher()">
+                                            <div class="download-launcher">
+                                                <div class="text">Скачать лаунчер</div>
+                                                <div class="img">
+                                                    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                                                        xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                                                        viewBox="0 0 612 612" style="enable-background:new 0 0 612 612;"
+                                                        xml:space="preserve" fill="#ecd19a">
+                                                        <g>
+                                                            <g id="_x37__43_">
+                                                                <g>
+                                                                    <path
+                                                                        d="M403.939,295.749l-78.814,78.833V172.125c0-10.557-8.568-19.125-19.125-19.125c-10.557,0-19.125,8.568-19.125,19.125
+                                                                                                				v202.457l-78.814-78.814c-7.478-7.478-19.584-7.478-27.043,0c-7.478,7.478-7.478,19.584,0,27.042l108.19,108.19
+                                                                                                				c4.59,4.59,10.863,6.005,16.812,4.953c5.929,1.052,12.221-0.382,16.811-4.953l108.19-108.19c7.478-7.478,7.478-19.583,0-27.042
+                                                                                                				C423.523,288.29,411.417,288.29,403.939,295.749z M306,0C137.012,0,0,136.992,0,306s137.012,306,306,306s306-137.012,306-306
+                                                                                                				S475.008,0,306,0z M306,573.75C158.125,573.75,38.25,453.875,38.25,306C38.25,158.125,158.125,38.25,306,38.25
+                                                                                                				c147.875,0,267.75,119.875,267.75,267.75C573.75,453.875,453.875,573.75,306,573.75z" />
+                                                                </g>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                    <h1>
+                        <span class="hide">RPGECONOMY</span>
+                        <!-- <div class="textlogo">RPGECONOMY</div> -->
+                        <img @click="modalShow('auth')" onload="this.style.opacity='1';" class="big-logo"
+                            src="img/new/colored-logo2.png" alt="RPGECONOMY">
+                    </h1>
+                </header>
+            </div>
+            <!-- ============== DIVIDER ============== -->
+            <div class="Divider">
+                <hr class="Divider-rule">
+            </div>
+            <!-- ============== FEATURES SECTION =============== -->
+            <div class="row pattern">
+                <section class="features" id="features">
+                    <div class="container">
+                        <div class="row">
+                            <h2>L2 сервер с выводом адены</h2>
+                            <div class="section-description">
+                                <p>Хроники: Interlude</p>
+
+                                <p>Exp x0.2 / Drop x1 / Spoil x1</p>
+
+                                <p>Контракт вывода адены: 10.000 адены = 10 рублей<br>
+                                    <span class="text-gray">(Взымается случайная комиссия от 50 копеек до 2.50
+                                        рублей)</span>
+                                </p>
+
+                                <p>На нашем сервере вся экономика привязана к реальным деньгам, а с помощью «контракта
+                                    вывода
+                                    адены» вы можете обналичить
+                                    игровую валюту и вывести рубли себе на карту или другую платежную систему.</p>
+                            </div>
+                        </div>
+                        <div class="row items-container bottom-wrapper">
+                            <p>&nbsp;<br>&nbsp;</p>
+                        </div>
+                        <div class="row">
+                            <h2>Основы экономики</h2>
+                            <article id="features-item" class="col-sm-6 col-md-3 box features-item thumbnail-100"
+                                data-toggle="modal" data-target="#shop-modal">
+                                <img class="features-img" src="img/new/section1_1.png" alt="Контракт" data-Modaltext="
+                                    <div class='block'>
+                                        <span class='textTitle chempions'>Монстр 11-19 ур.</span><br>
+                                        0.8% Шанс получить Контракты вывода адены (1-6 шт.)<br>
+                                    </div>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <div class='block'>
+                                        <span class='textTitle chempions'>Монстр 20-39 ур.</span><br>
+                                        0.8% Шанс получить Контракты вывода адены (2-8 шт.)
+                                    </div>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <div class='block'>
+                                        <span class='textTitle chempions'>Монстр 40-51 ур.</span><br>
+                                        0.8% Шанс получить Контракты вывода адены (3-10 шт.)
+                                    </div>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <div class='block'>
+                                        <span class='textTitle chempions'>Монстр 52-60 ур.</span><br>
+                                        0.8% Шанс получить Контракты вывода адены (4-12 шт.)
+                                    </div>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <div class='block'>
+                                        <span class='textTitle chempions'>Монстр 61-75 ур.</span><br>
+                                        0.8% Шанс получить Контракты вывода адены (5-16 шт.)
+                                    </div>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <div class='block'>
+                                        <span class='textTitle chempions'>Монстр 76+ ур.</span><br>
+                                        0.8% Шанс получить Контракты вывода адены (6-20 шт.)
+                                    </div>
+                                    ">
+                                </p>
+                                <span id="item-name-caption" class="item-name-caption hidden-xs">
+                                    Контракт
+                                </span>
+                                <h3>Контракт</h3>
+                                <p class="features-p">
+                                    Меняет адену на рубли.
+                                    Средства сразу поступают вам на игровой баланс.
+                                    Вывод доступен на карту банка или qiwi кошелек.
+                                    Шанс выпадения - 0.8% при убийстве монстров старше 10 уровня.
+                                    За раз может выпасть от 1 до 20 контрактов.
+                                </p>
+                            </article>
+                            <article class="col-sm-6 col-md-3 box features-item thumbnail-100" data-toggle="modal"
+                                data-target="#shop-modal">
+                                <img class="features-img" src="img/new/section1_2.png" alt="Доход от захвата замков"
+                                    data-Modaltext="
+                                    <p>На сервере RpgEconomy, Клану захватившему замок, помимо классической награды ( Лидер клана устанавливает налог ) есть еще один источник заработка, за взятие замка Гирана.</p>
+                                    <p>Гарантированная выплата 100.000 рублей и 5% от всего доната сервера за весь период между осадами.</p>
+                                    <p>Клан который отстоял свой замок от захвата, также получает 5% о доната.</p>
+                                    <p>Денежный доход выплачивается в виде «Контрактов на вывод адены»</p>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <p class='textTitle'>Пример:</p>
+                                    <p>После захвата замка Гиран, Лидер получает доход 100.000+ 5% от доната, общая сумма получилась 350.000 тысяч рублей.</p>
+                                    <p>Сколько же это будет в Контрактах?</p>
+                                    <p>По Контракту за 10.000 адены вы получаете от 7.5 до 9.5 рублей. Клан получит 41.176 Контрактов , обналичить которые он сможет с помощью 350.000.000 адены</p>
+                                    <p>Такая модель экономики позволяет выводить огромные суммы адены с сервера и всегда держит инфляцию адены примерно на одном уровне, а иногда делает ее отрицательной.
+                                    ">
+                                <span id="item-name-caption" class="item-name-caption hidden-xs">
+                                    Захват замков
+                                </span>
+                                <h3>Замки</h3>
+                                <p class="features-p">
+                                    При захвате замка «Гиран» клан гарантированно получает 100.000 рублей + 5% от доната
+                                    сервера а также возможность
+                                    установить налог на адену. Денежная сумма выплачивается «контрактами вывода адены».
+                                </p>
+                            </article>
+                            <div class="clearfix visible-sm-block"></div>
+                            <article class="col-sm-6 col-md-3 box features-item thumbnail-100" data-toggle="modal"
+                                data-target="#shop-modal">
+                                <img class="features-img" src="img/new/section1_3.png" alt="Адена" data-Modaltext="
+                                <div class='block'>
+                                    В классической версии L2 Interlude шанс дропа составлял 70% а минимальное значение не сильно отличалось от максимального.
+                                </div>
+                                <div class='block'>
+                                    Пример :
+                                </div>
+                                <div class='block'>
+                                    С 25 уровня монстра падало 200-286 адены с 70% шансом.
+                                </div>
+                                <div class='items-container bottom-wrapper'></div>
+                                <div class='block textTitle'>
+                                    У нас на сервере кардинально другая система.
+                                </div>
+                                <div class='block'>
+                                    Минимальное значение адены у всех мобов равно 1, максимальное зависит от его уровня и количества здоровья, шанс выпадения снижен и равняется 28%.
+                                </div>
+                                <div class='block'>
+                                    Но если вы удачлив, то на дроп адены может сработать множитель
+                                </div>
+                                <div class='block'>
+                                    х15, х550, х9500.
+                                </div>
+                                <div class='block'>
+                                    Пример :
+                                </div>
+                                <div class='block'>
+                                    C монстра 25 уровня падает от 1 до 286 адены, вам не повезло и в этом промежутке выпало 10 адены, сработал множитель х550, в итоге вы получаете 5500 адены. Если бы упало близкое к максимальному значению, например 280, вы бы получили 154.000.
+                                </div>
+                                <div class='items-container bottom-wrapper'></div>
+                                <div class='block'>
+                                    Ниже таблица с шансом и максимально возможными значениями. Уровни взяты для примера, на более низких количество адены меньше, на более высоких гораздо больше.
+                                </div>
+                                <div class='block textTitle'>
+                                    Дроп Адены с монстра 25 уровня
+                                </div>
+                                <div class='block'>
+                                    (х1) Шанс 28% / Дроп от 1 до 286 адены
+                                </div>
+                                <div class='block'>
+                                    (х15) Шанс 0.5% / Дроп 1-4.290 адены
+                                </div>
+                                <div class='block'>
+                                    (х550) Шанс 0.007% / Дроп 1-157.300 адены
+                                </div>
+                                <div class='block'>
+                                    (х9500) Шанс 0.00035% / Дроп 1-2.717.000 адены
+                                </div>
+                                <div class='block textTitle'>
+                                    Дроп Адены с монстра 35 уровня
+                                </div>
+                                <div class='block'>
+                                    (х1). Шанс 28% / Дроп 1-496 адены
+                                </div>
+                                <div class='block'>
+                                    (х15) Шанс 0.5% / Дроп 1-7.440 адены
+                                </div>
+                                <div class='block'>
+                                    (х550) Шанс 0.007% / Дроп 1-272.800 адены
+                                </div>
+                                <div class='block'>
+                                    (х9500) Шанс 0.00035% / Дроп 1-4.712.000 адены
+                                </div>
+                                ">
+                                <span id="item-name-caption" class="item-name-caption hidden-xs">
+                                    Адена
+                                </span>
+                                <h3>Адена</h3>
+                                <p class="features-p">
+                                    С монстров падает от 1 адены до 90.000.000 адены , больше количество — меньше шанс.
+                                    Удачи.
+                                </p>
+                            </article>
+                            <article class="col-sm-6 col-md-3 box features-item thumbnail-100" data-toggle="modal"
+                                data-target="#shop-modal">
+                                <img class="features-img" src="img/new/section1_4.png" alt="Roth Hero Character"
+                                    data-Modaltext="
+                                    <div class='block'>
+                                        На нашем сервере количество опыта получаемое с монстров составляет 0.2 от классического Interlude, но если вам удастся достать «Лицензию на опыт», то за определённое количество адены, вы сможете преобрести себе банку опыта.
+                                    </div>
+                                    <div class='items-container bottom-wrapper'></div>
+                                    <div class='block'>
+                                        Благодаря этому инфляция адены на сервере минимальна.
+                                    </div>
+                                    ">
+                                <span id="item-name-caption" class="item-name-caption hidden-xs">
+                                    Опыт
+                                </span>
+                                <h3>Опыт</h3>
+                                <p class="features-p">
+                                    На нашем сервере количество опыта получаемое с монстров составляет 0.2 от
+                                    классического
+                                    Interlude, но если вам удастся
+                                    достать «Лицензию на опыт», то за определённое количество адены, вы сможете
+                                    преобрести
+                                    себе банку опыта.
+                                </p>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- ============== DIVIDER ============== -->
+            <div class="Divider serverOpened">
+                <hr class="Divider-rule">
+            </div>
+            <!-- ============== GALLERY SECTION =============== -->
+            <div class="row pattern-dark serverOpened" id="timer">
+                <section class="gallery" id="gallery">
+                    <div class="container">
+                        <div class="row">
+                            <h2 class="opendateTitle">Открытие сервера 4 июля 2021</h2>
+                            <ul class="countdown block">
+                                <li> <span class="days">00</span>
+                                    <p class="days_ref">дней</p>
+                                </li>
+                                <li class="seperator fixDays"></li>
+                                <li> <span class="hours">00</span>
+                                    <p class="hours_ref">часов</p>
+                                </li>
+                                <li class="seperator">:</li>
+                                <li> <span class="minutes">00</span>
+                                    <p class="minutes_ref">минут</p>
+                                </li>
+                                <li class="seperator">:</li>
+                                <li> <span class="seconds">00</span>
+                                    <p class="seconds_ref">секунд</p>
+                                </li>
+                            </ul>
+                            <!-- <p class="section-description">
+                                The ornate peace of these halls would be shattered now and then by the faint whispers of the
+                                Statue of a thousand faces, as the soul fragments collided and the Heroes met in glorious
+                                Combat. For them it would always be the first time, until someone's time to be free of this
+                                burden would come - then he'd regain consciousness of who he was and what he had to do.
+                                <br><br>But, this time, something was different.
+                            </p> -->
+                        </div>
+                    </div>
+                    <!-- <div class="row">
+                        <div id="dragonic-carousel" class="carousel slide" data-ride="carousel" data-interval="false">
+                            <div class="modal-corner modal-corner-top-left"></div>
+                            <div class="modal-corner modal-corner-top-right"></div>
+                            <div class="modal-corner modal-corner-bottom-left"></div>
+                            <div class="modal-corner modal-corner-bottom-right"></div>
+                            <div class="modal-border modal-border-top"></div>
+                            <div class="modal-border modal-border-right"></div>
+                            <div class="modal-border modal-border-bottom"></div>
+                            <div class="modal-border modal-border-left"></div>
+                            Indicators
+                            <ol class="carousel-indicators">
+                                <li data-target="#dragonic-carousel" data-slide-to="0" class="active"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="1"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="2"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="3"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="4"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="5"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="6"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="7"></li>
+                                <li data-target="#dragonic-carousel" data-slide-to="8"></li>
+                            </ol>
+                            Wrapper for slides
+                            <div class="carousel-inner" role="listbox">
+                                <div class="item active">
+                                    <div class="youtube-player" data-id="n6EmbpX1H94">
+                                        <img src="img/video-thumbnail.jpg"
+                                            alt="Dragonic Game Video Gameplay Graphics Showcase">
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-1.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Dragons Mountains">
+                                    <div class="carousel-caption">
+                                        The Dragon's voice boomed throughout the kingdom...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-2.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Female Character Chaos Hero Sorceress">
+                                    <div class="carousel-caption">
+                                        She would give them a piece of their own personal hell...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-3.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Lava Mountain Dungeon">
+                                    <div class="carousel-caption">
+                                        The Enlightened's charred husk remained atop the castle's walls...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-4.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Dungeon Portal">
+                                    <div class="carousel-caption">
+                                        Void claimed all in the Halls of Reflection...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-5.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Male Character Chaos Hero Paladin">
+                                    <div class="carousel-caption">
+                                        Theregar deflected another attack, towering atop the crambled stairs...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-6.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Dungeon Portal">
+                                    <div class="carousel-caption">
+                                        The soul fragments met, imprisoning life in the midst of the Void...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-7.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Dungeon Gothic">
+                                    <div class="carousel-caption">
+                                        Only moments remain before the Halls of Reflection burst into light...
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <img src="img/gallery-dragonic-game-screenshot-8.jpg"
+                                        alt="Dragonic Game Gameplay Screenshot Dark Sunset Forest">
+                                    <div class="carousel-caption">
+                                        In the shadows of the murky forest, they must pursue their foe...
+                                    </div>
+                                </div>
+                            </div>
+                            Controls
+                            <a class="left carousel-control" href="#dragonic-carousel" role="button" data-slide="prev">
+                                <span class="slider-arrow slider-arrow-left" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="right carousel-control" href="#dragonic-carousel" role="button" data-slide="next">
+                                <span class="slider-arrow slider-arrow-right" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </div>
+                    </div> -->
+                </section>
+            </div>
+            <!-- ============== DIVIDER ============== -->
+            <div class="Divider">
+                <hr class="Divider-rule">
+            </div>
+            <!-- ============== STORE SECTION =============== -->
+            <div class="row pattern">
+                <section class="store" id="store">
+                    <div class="container">
+                        <div class="row">
+                            <h2>три простых шага<br>получить бонус на открытии сервера.</h2>
+                            <p class="section-description">
+                                Бонус будет начислен, если вы зарегистрируетесь и скачаете лаунчер<br>до окончания
+                                времени
+                                на таймере.
+                            </p>
+                        </div>
+                        <div class="row items-container">
+                            <div id="item-1" class="col-xs-5 col-sm-3 gallery-item item-1 thumbnail-50"
+                                @click="modalShow('auth')">
+                                <img src="img/new/section2_1.png">
+                                <div class="panel-item__text">
+                                    <h3 class="panel-item__title">Регистрация</h3>
+                                    <p class="panel-item__summary">
+                                        Быстрая регистрация игрового аккаунта.
+                                    </p>
+                                </div>
+                                <a class="button-game">
+                                    <span class="button-game-bg-left"></span>
+                                    <span class="button-game-bg-mid">
+                                        <span>Начать</span>
+                                    </span>
+                                    <span class="button-game-bg-right"></span>
+                                </a>
+                            </div>
+                            <div id="item-2"
+                                class="col-xs-5 col-xs-offset-2 col-sm-3 col-sm-offset-1 gallery-item item-2 thumbnail-50"
+                                :class="{ active: present.first }">
+                                <div class="mask" v-if="!present.first"></div>
+                                <div class="a-mask" @click="downloadLauncher()">
+                                </div>
+                                <img src="img/new/section2_2.png">
+                                <div class="panel-item__text">
+                                    <h3 class="panel-item__title">Скачать лаунчер</h3>
+                                    <p class="panel-item__summary">
+                                        Скачивая, вы соглашаетесь с правилами сервера
+                                    </p>
+                                </div>
+                                <a class="button-game" @click="downloadLauncher()">
+                                    <span class="button-game-bg-left"></span>
+                                    <span class="button-game-bg-mid">
+                                        <span>Скачать</span>
+                                    </span>
+                                    <span class="button-game-bg-right"></span>
+                                </a>
+                            </div>
+                            <div class="clearfix visible-xs"></div>
+                            <div id="item-3" @click="getBonus()"
+                                class="col-xs-5 col-sm-3 col-sm-offset-1 gallery-item item-3 thumbnail-50"
+                                :class="{ active: present.first && present.second && present.fird != 'true' }">
+                                <div class="mask" v-if="!present.first || !present.second || present.fird">
+                                </div>
+                                <img src="img/new/section2_3.png">
+                                <div class="panel-item__text">
+                                    <h3 class="panel-item__title">Получить бонус</h3>
+                                    <p class="panel-item__summary">
+                                        Вы получите 1x Lootbox в инвентарь
+                                    </p>
+                                </div>
+                                <a class="button-game">
+                                    <span class="button-game-bg-left"></span>
+                                    <span class="button-game-bg-mid">
+                                        <span>{{ present.first && present.second && present.fird ? present.status =
+                                            'Бонус получен'
+                                            : present.status }}</span>
+                                    </span>
+                                    <span class="button-game-bg-right"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row items-container bottom-wrapper">
+                            <!-- Modal -->
+                            <div class="modal fade" id="shop-modal" tabindex="-1" role="dialog"
+                                aria-labelledby="myModalLabel">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <span class="Video-border Video-border--top"></span>
+                                        <span class="Video-border Video-border--right"></span>
+                                        <span class="Video-border Video-border--bottom"></span>
+                                        <span class="Video-border Video-border--left"></span>
+                                        <span class="Video-corner Video-corner--topLeft"></span>
+                                        <span class="Video-corner Video-corner--topRight"></span>
+                                        <span class="Video-corner Video-corner--bottomRight"></span>
+                                        <span class="Video-corner Video-corner--bottomLeft"></span>
+                                        <div class="modal-header pattern">
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                                        </div>
+                                        <div class="modal-body pattern-dark clearfix" id="modalBody">
+                                            <div id="model-feats">example</div>
+                                            <div class="clearfix"></div>
+                                            <div class="price" id="modal-price-tag">price here</div>
+                                        </div>
+                                        <div class="modal-footer pattern">
+                                            <!--<button type="button" class="btn">Order now</button>-->
+                                            <a id="shop-modal-hide" xmlns="http://www.w3.org/1999/xhtml"
+                                                class="button-game shop-modal-hide" href="#store">
+                                                <span class="button-game-bg-left"></span>
+                                                <span class="button-game-bg-mid">
+                                                    <span>Начать играть</span>
+                                                </span>
+                                                <span class="button-game-bg-right"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- ============== DIVIDER ============== -->
+            <div class="Divider">
+                <hr class="Divider-rule">
+            </div>
+            <!-- ============== TESTIMONIALS SECTION =============== -->
+            <div class="row">
+                <section class="testimonials" id="testimonials">
+                    <div class="container">
+                        <div class="row">
+                            <h2>В следующих обновлениях</h2>
+                        </div>
+                        <div class="row">
+                            <section class="col-md-4">
+                                <cite><img src="img/new/section3_1.png"
+                                        alt="Игроки смогут получать опыт и лут с монстров, нанимая других игроков."></cite>
+                                <blockquote>
+                                    Игроки смогут получать опыт и лут с монстров, нанимая других игроков.
+                                </blockquote>
+                            </section>
+                            <section class="col-md-4">
+                                <cite><img src="img/new/section3_2.png"
+                                        alt="Прием ставок при осаде замков. Ставь адену на победителя!"></cite>
+                                <blockquote>
+                                    Прием ставок при осаде замков.<br>Ставь адену на победителя!
+                                </blockquote>
+                            </section>
+                            <section class="col-md-4">
+                                <cite><img class="fix-section3_3-img" src="img/new/section3_3.png"
+                                        alt="Создание собственных уникальных доспехов и оружия."></cite>
+                                <blockquote>
+                                    Создание собственных уникальных доспехов и оружия.
+                                </blockquote>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- ============== DIVIDER ============== -->
+            <div class="Divider">
+                <hr class="Divider-rule">
+            </div>
+            <!-- ============== CONTACT SECTION =============== -->
+            <div class="row pattern">
+                <section class="contact" id="contact">
+                    <div class="container">
+                        <div class="row">
+                            <h2>{{ registration.title }}</h2>
+                        </div>
+                        <div class="registerblock" v-bind:class="{ active: modals.auth.tab === 'registerblock' }">
+                            <div class="step" v-show="registration.steps.count === 1">
+                                <form autocomplete="off" id="form2" method="post" action="">
+                                    <div class="input verification">
+                                        <div class="inputblock">
+                                            <vue-multiselect class="country-code"
+                                                v-model="registration.countryCode.value"
+                                                :options="registration.countryCode.options" :close-on-select="true"
+                                                placeholder="Код страны" label="country" track-by="_id" select-label=""
+                                                deselect-label=""></vue-multiselect>
+                                            <div class="phoneblock">
+                                                <div class="phone-mask">{{ registration.countryCode.value.code }}</div>
+                                                <input class="number border-fix" type="number"
+                                                    placeholder="Номер телефона" v-model="registration.phone"
+                                                    readonly="readonly" onfocus="this.removeAttribute('readonly')" />
+                                            </div>
+                                        </div>
+                                        <div class="error-text" :class="{ bad: registration.bad.phone }">{{
+                                            registration.error.phone }}
+                                        </div>
+                                    </div>
+                                    <div class="input">
+                                        <input class="reginput" type="text" v-model="registration.name"
+                                            autocomplete="off" placeholder="Никнейм" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" value="default@wardgame.com" />
+                                        <div class="error-text" :class="{ bad: registration.bad.nickname }">{{
+                                            registration.error.nickname }}</div>
+                                    </div>
+                                    <div class="input">
+                                        <input class="reginput" type="password" placeholder="Придумайте пароль"
+                                            v-model="registration.pass" autocomplete="off" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.password }">{{
+                                            registration.error.password }}</div>
+                                    </div>
+                                    <div class="input">
+                                        <input class="reginput" type="password" placeholder="Повторите пароль"
+                                            v-model="registration.pass2" @keyup.enter="registrationGo()"
+                                            autocomplete="off" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.password2 }">{{
+                                            registration.error.password2 }}</div>
+                                    </div>
+                                    <div class="input">
+                                        <div class="captcha-block">
+                                            <div class="lost-pass" @click="lostPassGo">
+                                                забыли
+                                                пароль?
+                                            </div>
+                                            <div class="captcha">
+                                                <div class="g-recaptcha"
+                                                    data-sitekey="6LeAzT8bAAAAAOLXjQq0Suf5WMTyF9y1ZJP4zP7n"></div>
+                                                <div class="error-text captcha"
+                                                    :class="{ bad: registration.bad.captcha }">{{
+                                                    registration.error.captcha }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="input submit">
+                                        <div class="accept">
+                                            <div v-if="registration.wait" class="wait-block">
+                                                <div class="img">
+                                                    <img src="img/new/wait.svg">
+                                                </div>
+                                            </div>
+                                            <button type="submit" @click="registrationGo($event)">Далее</button>
+                                        </div>
+                                    </div>
+                                    <div class="input policy-text">
+                                        Продолжая, вы соглашаетесь с <a href="/policy.html" target="blank">политикой обработки персональных данных</a>.
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="step" v-show="registration.steps.count === 2">
+                                <div class="userinfo-imageblock">
+                                    <div class="input-text">
+                                        Вам поступит звонок с уникального номера. Введите последние 4 цифры этого
+                                        номера.
+                                    </div>
+                                    <div class="input phoneCode">
+                                        <input class="reginput" :maxlength="registration.codeLimit" type="text"
+                                            placeholder="Последние 4 цифры входящего номера"
+                                            v-model="registration.codeFromPhone" autocomplete="off"
+                                            readonly="readonly" onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.smsResponse }">{{
+                                            registration.error.smsResponse }}</div>
+                                    </div>
+                                </div>
+                                <div class="userinfo-nextbutton">
+                                    <div class="accept">
+                                        <div v-if="registration.wait" class="wait-block">
+                                            <div class="img">
+                                                <img src="img/new/wait.svg">
+                                            </div>
+                                        </div>
+                                        <button type="button" @click="registrationGo($event)">{{ registration.button
+                                            }}</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step" v-show="registration.steps.count === 3">
+                                <div class="finish-block">
+                                    <div class="finish-title">Вы успешно зарегистрированы.</div>
+                                    <div class="finish-login">Ваш логин: <span>{{ registration.goodLogin }}</span></div>
+                                    <a @click="downloadLauncher()">
+                                        <div class="finish-download button-game">
+                                            <span class="button-game-bg-left"></span>
+                                            <span class="button-game-bg-mid">
+                                                <span>Скачать лаунчер</span>
+                                            </span>
+                                            <span class="button-game-bg-right"></span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="step lostpass-block" v-show="registration.steps.count === 4">
+                                <form action="" method="post" id="form3">
+                                    <div class="input verification">
+                                        <div class="inputblock">
+                                            <vue-multiselect class="country-code"
+                                                v-model="registration.countryCode.value"
+                                                :options="registration.countryCode.options" :close-on-select="true"
+                                                placeholder="Код страны" label="country" track-by="_id" select-label=""
+                                                deselect-label=""></vue-multiselect>
+                                            <div class="phoneblock">
+                                                <div class="phone-mask">{{ registration.countryCode.value.code }}</div>
+                                                <input class="number border-fix" type="number"
+                                                    placeholder="Номер телефона" v-model="registration.phone"
+                                                    readonly="readonly" onfocus="this.removeAttribute('readonly')" />
+                                            </div>
+                                        </div>
+                                        <div class="error-text" :class="{ bad: registration.bad.phone }">{{
+                                            registration.error.phone }}
+                                        </div>
+                                    </div>
+                                    <div class="input">
+                                        <div class="captcha-block">
+                                            <div class="lost-pass" @click="backToReg()">
+                                                Вернуться к регистрации
+                                            </div>
+                                            <div class="captcha">
+                                                <div class="g-recaptcha"
+                                                    data-sitekey="6LeAzT8bAAAAAOLXjQq0Suf5WMTyF9y1ZJP4zP7n"></div>
+                                                <div class="error-text captcha"
+                                                    :class="{ bad: registration.bad.captcha }">{{
+                                                    registration.error.captcha }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="input submit">
+                                        <div class="accept">
+                                            <div v-if="registration.wait" class="wait-block">
+                                                <div class="img">
+                                                    <img src="img/new/wait.svg">
+                                                </div>
+                                            </div>
+                                            <button type="submit" @click="lostPassGo($event)">Далее</button>
+                                        </div>
+                                    </div>
+                                    <div class="input policy-text">
+                                        Продолжая, вы соглашаетесь с <a href="/policy.html" target="blank">политикой обработки персональных данных</a>.
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="step lostpass-block" v-show="registration.steps.count === 5">
+                                <div class="userinfo-imageblock">
+                                    <div class="input-text">
+                                        Вам поступит звонок с уникального номера. Введите последние 4 цифры этого
+                                        номера.
+                                    </div>
+                                    <div class="input phoneCode">
+                                        <input class="reginput" type="text"
+                                            placeholder="Последние 4 цифры входящего номера"
+                                            v-model="registration.codeFromPhone" :maxlength="registration.codeLimit"
+                                            autocomplete="off" readonly="readonly"
+                                            onfocus="this.removeAttribute('readonly')" />
+                                        <div class="error-text" :class="{ bad: registration.bad.smsResponse }">{{
+                                            registration.error.smsResponse }}</div>
+                                    </div>
+                                </div>
+                                <div class="input">
+                                    <input class="reginput" type="password" placeholder="Придумайте пароль"
+                                        v-model="registration.pass" autocomplete="off" readonly="readonly"
+                                        onfocus="this.removeAttribute('readonly')" />
+                                    <div class="error-text" :class="{ bad: registration.bad.password }">{{
+                                        registration.error.password }}</div>
+                                </div>
+                                <div class="input">
+                                    <input class="reginput" type="password" placeholder="Повторите пароль"
+                                        v-model="registration.pass2" @keyup.enter="registrationGo()" autocomplete="off"
+                                        readonly="readonly" onfocus="this.removeAttribute('readonly')" />
+                                    <div class="error-text" :class="{ bad: registration.bad.confirmPass }">{{
+                                        registration.error.confirmPass }}</div>
+                                </div>
+                                <div class="input submit">
+                                    <div class="accept">
+                                        <div v-if="registration.wait" class="wait-block">
+                                            <div class="img">
+                                                <img src="img/new/wait.svg">
+                                            </div>
+                                        </div>
+                                        <button type="submit" @click="lostPassGo($event)">Далее</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="step lostpass-block" v-show="registration.steps.count === 6">
+                                <div class="lost-pass finish" @click="backToReg()">
+                                    Вернуться к регистрации
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- ============== DIVIDER ============== -->
+            <div class="Divider">
+                <hr class="Divider-rule">
+            </div>
+            <!-- ============== FOOTER =============== -->
+            <div class="row pattern-dark">
+                <footer class="container footer">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <nav class="footer-nav">
+                                <div>© RpgEconomy All rights reserved</div>
+                                <div class="ucaller"><a target="blank" href="https://ucaller.ru/"><img src="/img/new/ucaller.png"></a></div>
+                                <div><a href="/rules.html">Правила сервера</a></div>
+                            </nav>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+    <div id="vk_community_messages">
+        <!-- VK Widget -->
+        <div id="vk_community_messages"></div>
+        <script type="text/javascript">
+            VK.Widgets.CommunityMessages("vk_community_messages", 73442630, { disableExpandChatSound: "1", tooltipButtonText: "Есть вопрос?" });
+        </script>
+    </div>
+    <!-- ============== SCRIPTS =============== -->
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/waypoints/jquery.waypoints.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/jquery-mobile-custom/jquery.mobile.custom.min.js"></script>
+    <script src="js/vue.js"></script>
+</body>
+
+<script type="text/javascript" src="js/libs/jquery.downCount.js"></script>
+
+<script class="source" type="text/javascript">
+    $('.countdown').downCount({
+        date: '07/04/2021 21:00:00',
+        offset: +3
+    }, function () {
+        $('.serverOpened').hide();
+    });
+</script>
+
+<script type="text/javascript">
+
+    (function () {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+
+</html>

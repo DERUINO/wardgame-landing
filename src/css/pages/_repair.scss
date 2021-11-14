@@ -1,0 +1,57 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+.repair {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  color: $newHeader;
+  background: #1a1a1a;
+
+  .imgblock {
+    padding: 15px;
+    img {
+      width: 100%;
+      max-width: 400px;
+    }
+  }
+
+  .text {
+    text-align: center;
+    line-height: 1;
+    font-weight: bolder;
+    margin-bottom: 30px;
+
+    p {
+      font-weight: bolder;
+    }
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .telegram {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+
+    .text {
+      font-weight: bolder;
+      margin-bottom: 0;
+      margin-left: 15px;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+.policy {
+    padding: 5% 15%;
+
+    .policy-title {
+        font-size: 30px;
+        color: $newHeader;
+        text-align: center;
+        line-height: 1.1;
+    }
+
+    .policy-text {
+        h3 {
+            font-size: 20px;
+            text-align: left;
+        }
+
+        p {
+            font-size: 17px;
+            text-align: left;
+            color: rgba(255,255,255,0.6);
+        }
+    }
+
+    .link {
+        color: $newHeader;
+        text-decoration: underline;
+    }
+}
